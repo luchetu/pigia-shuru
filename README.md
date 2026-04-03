@@ -20,6 +20,41 @@ Pigia Shuru is being structured as a voice-agent system that can:
 - escalate risky or unsupported cases
 - send SMS or WhatsApp summaries after calls
 
+## Architecture
+```mermaid
+flowchart LR
+    A["Caller"] --> B["Twilio Voice"]
+    B --> C["FastAPI Webhooks"]
+    C --> D["LiveKit Session Bootstrap"]
+    D --> E["LiveKit Room / Agents"]
+    E --> F["Gemini Realtime"]
+
+    E --> G["Agent Flows"]
+    G --> H["KRA Connectors"]
+    G --> I["Notification Service"]
+    G --> J["Audit Logs"]
+
+    I --> K["SMS / WhatsApp Recap"]
+    K --> A
+```
+
+The voice path starts at Twilio, enters the FastAPI backend, creates or joins a LiveKit session, and hands conversation control to a LiveKit Agent backed by Gemini Realtime. Business flows then call integrations such as KRA connectors, notifications, and audit logging.
+
+## High-Level Flow
+```mermaid
+flowchart TD
+    A["Inbound call"] --> B["Language and intent capture"]
+    B --> C["Authenticate if required"]
+    C --> D{"Safe to automate?"}
+    D -->|Yes| E["Run voice-agent flow"]
+    D -->|Needs review| F["Confirm values with caller"]
+    D -->|No| G["Escalate or handoff"]
+    E --> H["Send recap"]
+    F --> H
+    G --> H
+    H --> I["End call"]
+```
+
 ## Project Structure
 ```text
 pigia-shuru/
