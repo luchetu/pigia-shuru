@@ -47,6 +47,29 @@ flowchart TD
   - phone number confirmation
   - KRA PIN
   - OTP or another approved verification step
+- The MVP should not use biometric authentication.
+- Voice biometrics can be considered later, but they are not part of the initial trust model because phone audio quality, spoofing risk, and failure handling are harder to manage safely.
+
+## Authentication Model
+### Trust Levels
+- `Anonymous`: general guidance with no account-specific data.
+- `Known caller`: the system recognizes the caller number but does not treat that as full identity.
+- `Caller + KRA PIN`: enough for some medium-risk account-specific flows.
+- `Caller + KRA PIN + OTP`: required for higher-risk actions or anything closer to submission.
+- `Verified + explicit confirmation`: required before any sensitive action is completed.
+
+### Recommended Approach
+- Use caller phone number as the first signal, not the only signal.
+- Ask for KRA PIN for account-specific flows.
+- Send an OTP over SMS or WhatsApp when the requested action is sensitive.
+- Read back important values and require a clear spoken or keypad confirmation before continuing.
+- Log verification level, confirmation result, and timestamps for auditability.
+
+### Why Not Biometrics In V1
+- PSTN and mobile call quality can degrade voiceprint accuracy.
+- Replay and spoofing risks are difficult to handle in a voice-only channel.
+- False rejects would create a poor experience for legitimate callers.
+- OTP plus explicit confirmation is simpler, clearer, and easier to audit.
 
 ### 4. Workflow Handling
 - For low-risk requests:
@@ -91,6 +114,8 @@ sequenceDiagram
 - Escalate when a caller disputes calculated values.
 - Escalate when the request involves unsupported filing actions.
 - Escalate when the caller requests a live agent.
+- Escalate when OTP verification fails repeatedly.
+- Escalate when the caller cannot complete the required verification level for the requested action.
 
 ## MVP Success Criteria
 - Caller completes a basic flow in under 3 minutes.
