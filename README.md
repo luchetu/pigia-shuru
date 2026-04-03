@@ -11,6 +11,9 @@ The current focus of the project is the backend and voice-agent platform.
 - LiveKit Agents for session management
 - Gemini Realtime for conversational intelligence
 
+## Design Principle
+The codebase is organized around capabilities, not vendors. Twilio, LiveKit, and Gemini are the current providers, but the folder structure is intended to stay provider-agnostic so implementations can be swapped without reshaping the app.
+
 ## Product Direction
 Pigia Shuru is being structured as a voice-agent system that can:
 - accept inbound calls from mobile or feature phones
@@ -25,9 +28,9 @@ Pigia Shuru is being structured as a voice-agent system that can:
 flowchart LR
     A["Caller"] --> B["Twilio Voice"]
     B --> C["FastAPI Webhooks"]
-    C --> D["LiveKit Session Bootstrap"]
-    D --> E["LiveKit Room / Agents"]
-    E --> F["Gemini Realtime"]
+    C --> D["Session Transport Bootstrap"]
+    D --> E["Realtime Agent Runtime"]
+    E --> F["AI Realtime Provider"]
 
     E --> G["Agent Flows"]
     G --> H["KRA Connectors"]
@@ -38,7 +41,7 @@ flowchart LR
     K --> A
 ```
 
-The voice path starts at Twilio, enters the FastAPI backend, creates or joins a LiveKit session, and hands conversation control to a LiveKit Agent backed by Gemini Realtime. Business flows then call integrations such as KRA connectors, notifications, and audit logging.
+The voice path starts at the telephony provider, enters the FastAPI backend, creates or joins a realtime transport session, and hands conversation control to the agent runtime backed by a realtime AI provider. Business flows then call integrations such as KRA connectors, notifications, and audit logging.
 
 ## High-Level Flow
 ```mermaid
@@ -63,9 +66,9 @@ pigia-shuru/
 │   ├── core/
 │   ├── services/
 │   ├── integrations/
-│   │   ├── twilio/
-│   │   ├── livekit/
-│   │   ├── gemini/
+│   │   ├── telephony/
+│   │   ├── transport/
+│   │   ├── ai/
 │   │   └── kra/
 │   ├── agents/
 │   │   ├── flows/
@@ -114,16 +117,16 @@ Planned core variables include:
 
 ## Backend Responsibilities
 The backend is expected to handle:
-- Twilio webhooks for inbound voice events
-- LiveKit room and participant orchestration
-- Gemini Realtime session setup
+- telephony webhooks for inbound voice events
+- realtime room and participant orchestration
+- realtime AI session setup
 - agent flow execution and confirmation logic
 - downstream integrations such as KRA-facing connectors
 - audit logging, retries, and notification delivery
 
 ## Next Build Targets
 - add FastAPI routers for webhooks and internal APIs
-- scaffold Twilio inbound voice handling
-- add LiveKit session bootstrap utilities
-- create Gemini Realtime adapter services
+- scaffold telephony inbound voice handling
+- add transport session bootstrap utilities
+- create realtime AI adapter services
 - define the first voice-agent flows for NIL return and TOT guidance

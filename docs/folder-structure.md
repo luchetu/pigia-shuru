@@ -11,9 +11,9 @@ pigia-shuru/
 │   ├── core/
 │   ├── services/
 │   ├── integrations/
-│   │   ├── twilio/
-│   │   ├── livekit/
-│   │   ├── gemini/
+│   │   ├── telephony/
+│   │   ├── transport/
+│   │   ├── ai/
 │   │   └── kra/
 │   ├── agents/
 │   │   ├── flows/
@@ -51,7 +51,7 @@ App configuration, settings, logging, security helpers, and shared startup logic
 Business logic that is not tied to a specific transport or vendor.
 
 ### `app/integrations`
-External system adapters for Twilio, LiveKit, Gemini Realtime, and future KRA-facing integrations.
+External system adapters grouped by capability rather than vendor. This keeps the architecture provider-agnostic while still allowing concrete implementations under each integration area.
 
 ### `app/agents`
 Voice-agent orchestration, prompts, tool definitions, and session-level behaviors.
@@ -75,8 +75,13 @@ Developer utilities such as local bootstrapping, tunnel setup, or fixture loadin
 Container and environment-specific deployment assets.
 
 ## Notes For Your Stack
-- Keep telephony concerns inside `app/integrations/twilio`.
-- Keep WebRTC room and participant handling inside `app/integrations/livekit`.
-- Keep Gemini Realtime session bootstrapping and model-specific adapter code inside `app/integrations/gemini`.
+- Keep call ingress and PSTN provider adapters inside `app/integrations/telephony`.
+- Keep WebRTC room, media transport, and session transport adapters inside `app/integrations/transport`.
+- Keep realtime model adapters and session bootstrapping inside `app/integrations/ai`.
 - Keep call logic such as `nil_return`, `tot_guidance`, and `payment_help` inside `app/agents/flows`.
 - Keep agent prompts versioned as files in `app/agents/prompts` so they are easy to iterate on.
+
+## Provider Mapping
+- `app/integrations/telephony`: current provider can be Twilio, but the folder should represent the telephony boundary, not the vendor.
+- `app/integrations/transport`: current provider can be LiveKit, but the folder should represent the media or session transport boundary.
+- `app/integrations/ai`: current provider can be Gemini Realtime, but the folder should represent the model or realtime intelligence boundary.
